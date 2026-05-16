@@ -33,9 +33,17 @@ export default async function handler(req, res) {
     });
   }
 
-  // Verificación directa encriptando la entrada del usuario a SHA-256
-  const hashedInput = crypto.createHash('sha256').update(String(password), 'utf8').digest('hex');
-  if (String(email).trim().toLowerCase() !== String(adminEmail).trim().toLowerCase() || hashedInput !== String(adminPassword)) {
+  // Usar bcrypt si la contraseña en el entorno es un hash, de lo contrario comparar directo
+  let isMatch = false;
+  if (String(adminPassword).startsWith('$2b$')) {
+      const bcrypt = await import('bcrypt');
+      isMatch = await bcrypt.compare(String(password), String(adminPassword));
+  } else {
+      // Comparación directa si el usuario guardó la contraseña en texto plano en Vercel
+      isMatch = String(password) === String(adminPassword);
+  }
+
+  if (String(email).trim().toLowerCase() !== String(adminEmail).trim().toLowerCase() || !isMatch) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
