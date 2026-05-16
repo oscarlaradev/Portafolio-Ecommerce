@@ -10,16 +10,28 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const isValidEmail = (value) => {
+    const clean = String(value || '').trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean);
+  };
+
   async function submit(e) {
     e.preventDefault();
     setError(null);
+
+    const cleanEmail = email.trim();
+    if (!isValidEmail(cleanEmail)) {
+      setError('Ingresa un correo valido, por ejemplo: admin@tudominio.com');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
       const data = await res.json();
       setLoading(false);
@@ -49,14 +61,16 @@ export default function AdminLogin() {
             <p className="mt-1 text-sm text-[#1E1B4B]/60">Accede al panel privado para gestionar leads y métricas</p>
           </div>
 
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} noValidate className="space-y-4">
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-[#1E1B4B]/55">Correo</span>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7C3AED]/80"><Envelope size={16} weight="bold" /></span>
                 <input
                   aria-label="email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoComplete="username"
                   placeholder="admin@tudominio.com"
                   required
                   value={email}
