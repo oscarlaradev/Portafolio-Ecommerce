@@ -1,4 +1,4 @@
-const PageHero = ({ eyebrow, title, description, ctaLabel, ctaHref, stats = [], note }) => {
+const PageHero = ({ eyebrow, title, description, ctaLabel, ctaHref, stats = [], note, onCtaClick }) => {
     return (
         <section className="min-h-[70vh] w-full flex flex-col justify-center px-6 md:px-12 lg:px-24 relative pt-24 pb-16">
             <div className="absolute inset-0 pointer-events-none opacity-30">
@@ -37,7 +37,18 @@ const PageHero = ({ eyebrow, title, description, ctaLabel, ctaHref, stats = [], 
                         )}
 
                         {ctaLabel && ctaHref && (
-                            <a href={ctaHref} className="group relative inline-flex items-center justify-center px-8 py-5 font-bold text-white transition-all duration-300 bg-[#7C3AED] rounded-full hover:bg-[#6D28D9] hover:scale-[1.02] interactive-hover overflow-hidden w-full shadow-lg shadow-[#7C3AED]/20">
+                            <a
+                                href={ctaHref}
+                                onClick={(e) => {
+                                    if (onCtaClick) {
+                                        e.preventDefault();
+                                        onCtaClick().finally(() => {
+                                            window.location.href = ctaHref;
+                                        });
+                                    }
+                                }}
+                                className="group relative inline-flex items-center justify-center px-8 py-5 font-bold text-white transition-all duration-300 bg-[#7C3AED] rounded-full hover:bg-[#6D28D9] hover:scale-[1.02] interactive-hover overflow-hidden w-full shadow-lg shadow-[#7C3AED]/20"
+                            >
                                 <span className="relative text-sm md:text-base font-display uppercase tracking-wider">{ctaLabel}</span>
                             </a>
                         )}

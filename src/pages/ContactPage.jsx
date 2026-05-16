@@ -1,7 +1,21 @@
 import Footer from '../sections/Footer.jsx';
 import PageHero from '../components/PageHero.jsx';
+import { useEffect } from 'react';
+
 
 const ContactPage = () => {
+    useEffect(() => {
+        fetch('/api/stats/record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'visits', increment: 1, meta: JSON.stringify({ page: '/contacto' }) }) }).catch(() => {});
+    }, []);
+
+    const handleCta = async () => {
+        try {
+            await fetch('/api/stats/record', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'leads', increment: 1, meta: JSON.stringify({ via: 'whatsapp', page: '/contacto' }) }) });
+        } catch {
+            // ignore
+        }
+    };
+
     return (
         <>
             <PageHero
@@ -10,6 +24,7 @@ const ContactPage = () => {
                 description="Si tienes una idea o proyecto, aquí es donde empieza."
                 ctaLabel="WhatsApp directo"
                 ctaHref="https://wa.me/528331119884"
+                onCtaClick={handleCta}
                 note="Respuesta directa para proyectos, colaboraciones y dirección creativa."
                 stats={[
                     { label: 'Respuesta', value: 'Rápida' },
