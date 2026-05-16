@@ -67,6 +67,15 @@
   .text-glow {
     text-shadow: 0 0 20px var(--accent-glow);
   }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
 }
 
 ::-webkit-scrollbar {

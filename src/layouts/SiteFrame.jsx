@@ -266,9 +266,11 @@ const SiteFrame = () => {
             <CustomCursor />
             <Navbar />
 
-            <main className={!isLoaded ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}>
-                <Outlet context={{ isLoaded }} />
-            </main>
+            {isLoaded && (
+                <main className="animate-fade-in">
+                    <Outlet context={{ isLoaded }} />
+                </main>
+            )}
         </div>
     );
 };
