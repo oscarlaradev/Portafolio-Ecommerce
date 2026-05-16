@@ -23,13 +23,16 @@
     min-width: 320px;
     width: 100vw;
     overflow-x: hidden;
-    cursor: none; /* For custom GSAP cursor if added later */
     background: var(--bg-color);
     color: var(--text-primary);
     font-family: 'Space Grotesk', sans-serif;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  body:not(.admin-mode) {
+    cursor: none;
   }
 
   .font-display {

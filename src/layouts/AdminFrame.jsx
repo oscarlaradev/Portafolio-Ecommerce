@@ -35,6 +35,9 @@ const AdminFrame = () => {
             document.head.appendChild(canonicalLink);
         }
         canonicalLink.setAttribute('href', `${window.location.origin}/admin`);
+
+        document.body.classList.add('admin-mode');
+        return () => document.body.classList.remove('admin-mode');
     }, []);
 
     useEffect(() => {

@@ -161,6 +161,8 @@ const SiteFrame = () => {
             rafId = window.requestAnimationFrame(tickOrbs);
         };
 
+        document.body.classList.remove('admin-mode');
+
         const handleMouseMove = (event) => {
             const x = event.clientX / window.innerWidth;
             const y = event.clientY / window.innerHeight;
