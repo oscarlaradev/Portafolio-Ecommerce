@@ -21,7 +21,11 @@ router.post('/login', async (req, res) => {
     const match = await verifyPassword(password, user.password);
     if (!match) return res.status(401).json({ error: 'Invalid credentials' });
     const token = createToken({ id: user.id, email: user.email });
-    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+    res.cookie('token', token, { 
+      httpOnly: true, 
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production' 
+    });
     res.json({ ok: true });
   });
 });

@@ -253,18 +253,18 @@ const SiteFrame = () => {
     }), []);
 
     return (
-        <div className="bg-[#F5F3FF] text-[#1E1B4B] min-h-screen font-sans selection:bg-[#7C3AED] selection:text-white relative overflow-hidden">
-            <div id="scroll-progress" className="fixed top-0 left-0 w-0 h-[3px] bg-gradient-to-r from-[#7C3AED] via-[#C4B5FD] to-[#DDD6FE] z-[9999] transition-all duration-100"></div>
+        <div className="bg-[#050505] text-white min-h-screen font-sans selection:bg-purple-600 selection:text-white relative overflow-hidden">
+            <div id="scroll-progress" className="fixed top-0 left-0 w-0 h-[3px] bg-gradient-to-r from-purple-600 via-purple-400 to-blue-500 z-[9999] transition-all duration-100"></div>
             <div className="fixed inset-0 z-[-2] pointer-events-none opacity-[0.03]" style={backgroundStyles.noise}></div>
             <div className="fixed inset-0 z-[-3] pointer-events-none bg-[length:50px_50px]" style={backgroundStyles.grid}></div>
-            <div id="orb1" className="fixed rounded-full blur-[100px] opacity-25 z-[-4] pointer-events-none bg-[#7C3AED] w-[40vw] h-[40vw] top-[-10%] left-[-10%]"></div>
-            <div id="orb2" className="fixed rounded-full blur-[100px] opacity-30 z-[-4] pointer-events-none bg-[#C4B5FD] w-[30vw] h-[30vw] bottom-[-10%] right-[-5%]"></div>
+            <div id="orb1" className="fixed rounded-full blur-[100px] opacity-25 z-[-4] pointer-events-none bg-purple-600 w-[40vw] h-[40vw] top-[-10%] left-[-10%]"></div>
+            <div id="orb2" className="fixed rounded-full blur-[100px] opacity-30 z-[-4] pointer-events-none bg-blue-600 w-[30vw] h-[30vw] bottom-[-10%] right-[-5%]"></div>
 
             {!isLoaded && <Preloader onComplete={() => setIsLoaded(true)} />}
             <CustomCursor />
             <Navbar />
 
-            <main className={!isLoaded ? 'opacity-0' : 'opacity-100 transition-opacity duration-700'}>
+            <main className={!isLoaded ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}>
                 <Outlet context={{ isLoaded }} />
             </main>
         </div>

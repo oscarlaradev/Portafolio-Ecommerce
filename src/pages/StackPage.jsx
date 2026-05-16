@@ -25,23 +25,23 @@ const StackPage = () => {
                         ['Delivery', 'Construcción simple, componentes claros y flujo de trabajo directo.'],
                         ['Quality', 'Lint, build y chequeo visual antes de cerrar cada cambio.'],
                     ].map(([label, text]) => (
-                        <article key={label} className="scroll-anim opacity-0 translate-y-10 rounded-3xl border border-[#DDD6FE] bg-white shadow-sm p-6 md:p-8">
-                            <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-4">{label}</p>
-                            <p className="text-[#1E1B4B]/70 leading-relaxed">{text}</p>
+                        <article key={label} className="scroll-anim opacity-0 translate-y-10 rounded-3xl border border-white/10 bg-[#0a0a0a] shadow-sm p-6 md:p-8">
+                            <p className="text-xs uppercase tracking-[0.35em] text-purple-400 mb-4">{label}</p>
+                            <p className="text-gray-400 leading-relaxed">{text}</p>
                         </article>
                     ))}
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
-                    <div className="scroll-anim opacity-0 translate-y-10 rounded-[2rem] border border-[#DDD6FE] bg-white p-8 md:p-10 shadow-sm">
-                        <p className="text-xs uppercase tracking-[0.35em] text-[#1E1B4B]/45 mb-4">Proceso</p>
+                    <div className="scroll-anim opacity-0 translate-y-10 rounded-[2rem] border border-white/10 bg-[#0a0a0a] p-8 md:p-10 shadow-sm">
+                        <p className="text-xs uppercase tracking-[0.35em] text-gray-500 mb-4">Proceso</p>
                         <p className="text-2xl md:text-4xl font-display font-black uppercase leading-tight">
                             Sistema visual sobrio, motion controlado y decisiones pensadas para producción.
                         </p>
                     </div>
-                    <div className="scroll-anim opacity-0 translate-y-10 rounded-[2rem] border border-[#DDD6FE] bg-[#F8F7FF] p-8 md:p-10 shadow-sm" data-delay="140">
-                        <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-4">Prioridades</p>
-                        <ul className="space-y-4 text-[#1E1B4B]/70">
+                    <div className="scroll-anim opacity-0 translate-y-10 rounded-[2rem] border border-white/10 bg-[#0a0a0a]/5 p-8 md:p-10 shadow-sm" data-delay="140">
+                        <p className="text-xs uppercase tracking-[0.35em] text-purple-400 mb-4">Prioridades</p>
+                        <ul className="space-y-4 text-gray-400">
                             <li>Arquitectura clara.</li>
                             <li>Animaciones discretas.</li>
                             <li>Rendimiento estable.</li>

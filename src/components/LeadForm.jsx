@@ -27,9 +27,9 @@ const LeadForm = () => {
     };
 
     return (
-        <div className="bg-white border border-[#DDD6FE] rounded-3xl p-8 shadow-sm w-full max-w-lg mx-auto">
-            <h3 className="text-xl font-display font-bold uppercase text-[#1E1B4B] mb-2">Comencemos tu proyecto</h3>
-            <p className="text-[#1E1B4B]/70 mb-6 text-sm">Déjanos tus datos y me pondré en contacto contigo de inmediato.</p>
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 shadow-sm w-full max-w-lg mx-auto">
+            <h3 className="text-xl font-display font-bold uppercase text-white mb-2">Comencemos tu proyecto</h3>
+            <p className="text-gray-400 mb-6 text-sm">Déjanos tus datos y me pondré en contacto contigo de inmediato.</p>
             
             {status === 'success' && (
                 <div className="bg-green-100 text-green-800 p-4 rounded-xl mb-6 text-sm">
@@ -44,7 +44,7 @@ const LeadForm = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#DDD6FE] focus:outline-none focus:border-[#7C3AED] bg-[#F8F7FF] text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#7C3AED] bg-[#0a0a0a]/5 text-sm"
                 />
                 <input
                     type="email"
@@ -52,26 +52,26 @@ const LeadForm = () => {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#DDD6FE] focus:outline-none focus:border-[#7C3AED] bg-[#F8F7FF] text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#7C3AED] bg-[#0a0a0a]/5 text-sm"
                 />
                 <input
                     type="tel"
                     placeholder="Tu teléfono (Opcional)"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#DDD6FE] focus:outline-none focus:border-[#7C3AED] bg-[#F8F7FF] text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#7C3AED] bg-[#0a0a0a]/5 text-sm"
                 />
                 <textarea
                     placeholder="Cuéntame sobre tu proyecto..."
                     rows="4"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#DDD6FE] focus:outline-none focus:border-[#7C3AED] bg-[#F8F7FF] text-sm resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-[#7C3AED] bg-[#0a0a0a]/5 text-sm resize-none"
                 />
                 <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="w-full bg-[#7C3AED] text-white font-bold py-3 rounded-xl hover:bg-[#6D28D9] transition-colors uppercase tracking-widest text-xs disabled:opacity-50"
+                    className="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-[#6D28D9] transition-colors uppercase tracking-widest text-xs disabled:opacity-50"
                 >
                     {status === 'loading' ? 'Enviando...' : 'Enviar Mensaje'}
                 </button>

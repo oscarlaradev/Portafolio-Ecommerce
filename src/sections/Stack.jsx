@@ -15,12 +15,12 @@ const Stack = () => {
     }, []);
 
     const icons = [FileCode, FileJs, Atom, CaretUp, Wind, ShootingStar, Cube, GitBranch];
-    const colors = ['hover:text-[#7C3AED]', 'hover:text-[#A855F7]', 'hover:text-[#7C3AED]', 'hover:text-[#1E1B4B]', 'hover:text-[#7C3AED]', 'hover:text-[#A855F7]', 'hover:text-[#1E1B4B]', 'hover:text-[#7C3AED]'];
+    const colors = ['hover:text-purple-400', 'hover:text-[#A855F7]', 'hover:text-purple-400', 'hover:text-white', 'hover:text-purple-400', 'hover:text-[#A855F7]', 'hover:text-white', 'hover:text-purple-400'];
 
     return (
-        <section id="stack" className="py-32 px-6 md:px-12 lg:px-24 w-full relative z-10 bg-white/75 backdrop-blur-sm border-y border-[#DDD6FE] my-20">
-            <h2 className="text-center text-sm uppercase tracking-[0.5em] text-[#7C3AED] mb-16 scroll-anim opacity-0 translate-y-10">{contentMeta.stackTitle}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 md:gap-4 justify-items-center opacity-80 text-[#1E1B4B]">
+        <section id="stack" className="py-32 px-6 md:px-12 lg:px-24 w-full relative z-10 bg-[#0a0a0a]/75 backdrop-blur-sm border-y border-white/10 my-20">
+            <h2 className="text-center text-sm uppercase tracking-[0.5em] text-purple-400 mb-16 scroll-anim opacity-0 translate-y-10">{contentMeta.stackTitle}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 md:gap-4 justify-items-center opacity-80 text-white">
                 {techs.map((tech, i) => {
                     const Icon = icons[i % icons.length];
                     return (

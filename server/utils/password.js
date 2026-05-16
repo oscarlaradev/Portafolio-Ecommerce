@@ -1,12 +1,12 @@
 /* eslint-disable no-undef */
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
-// Usamos SHA-256 nativo como solicitaste para máxima portabilidad y seguridad
+const SALT_ROUNDS = 12;
+
 export async function hashPassword(plain) {
-  return crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
+  return bcrypt.hash(String(plain), SALT_ROUNDS);
 }
 
 export async function verifyPassword(plain, hashed) {
-  const hash = crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
-  return hash === hashed;
+  return bcrypt.compare(String(plain), hashed);
 }

@@ -7,7 +7,7 @@ const Marquee = () => {
     ];
 
     return (
-        <div className="w-full bg-[#7C3AED] text-white py-4 md:py-6 rotate-[-2deg] my-20 scale-110 overflow-hidden relative z-20 shadow-[0_0_50px_rgba(124,58,237,0.18)]">
+        <div className="w-full bg-purple-600 text-white py-4 md:py-6 rotate-[-2deg] my-20 scale-110 overflow-hidden relative z-20 shadow-[0_0_50px_rgba(124,58,237,0.18)]">
             <div className="marquee-container flex w-max will-change-transform">
                 {[0, 1].map((block) => (
                     <div

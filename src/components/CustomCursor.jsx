@@ -70,7 +70,7 @@ const CustomCursor = () => {
 
     return (
         <>
-            <div ref={cursorRef} id="custom-cursor" className="fixed top-0 left-0 w-3 h-3 bg-[#7C3AED] rounded-full pointer-events-none z-[10000] -translate-x-1/2 -translate-y-1/2 transition-colors duration-300"></div>
+            <div ref={cursorRef} id="custom-cursor" className="fixed top-0 left-0 w-3 h-3 bg-purple-600 rounded-full pointer-events-none z-[10000] -translate-x-1/2 -translate-y-1/2 transition-colors duration-300"></div>
             <div ref={followerRef} id="cursor-follower" className="fixed top-0 left-0 w-10 h-10 border border-[#7C3AED]/30 rounded-full pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 transition-colors duration-300"></div>
         </>
     );
