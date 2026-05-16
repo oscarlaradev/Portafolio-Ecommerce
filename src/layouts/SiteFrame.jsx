@@ -259,8 +259,8 @@ const SiteFrame = () => {
             <div id="scroll-progress" className="fixed top-0 left-0 w-0 h-[3px] bg-gradient-to-r from-purple-600 via-purple-400 to-blue-500 z-[9999] transition-all duration-100"></div>
             <div className="fixed inset-0 z-[-2] pointer-events-none opacity-[0.03]" style={backgroundStyles.noise}></div>
             <div className="fixed inset-0 z-[-3] pointer-events-none bg-[length:50px_50px]" style={backgroundStyles.grid}></div>
-            <div id="orb1" className="fixed rounded-full blur-[100px] opacity-25 z-[-4] pointer-events-none bg-purple-600 w-[40vw] h-[40vw] top-[-10%] left-[-10%]"></div>
-            <div id="orb2" className="fixed rounded-full blur-[100px] opacity-30 z-[-4] pointer-events-none bg-blue-600 w-[30vw] h-[30vw] bottom-[-10%] right-[-5%]"></div>
+            <div id="orb1" className="fixed rounded-full z-[-4] pointer-events-none w-[40vw] h-[40vw] top-[-10%] left-[-10%]" style={{ background: 'radial-gradient(circle, rgba(147, 51, 234, 0.15) 0%, transparent 70%)' }}></div>
+            <div id="orb2" className="fixed rounded-full z-[-4] pointer-events-none w-[30vw] h-[30vw] bottom-[-10%] right-[-5%]" style={{ background: 'radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%)' }}></div>
 
             {!isLoaded && <Preloader onComplete={() => setIsLoaded(true)} />}
             <CustomCursor />

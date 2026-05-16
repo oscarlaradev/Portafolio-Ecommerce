@@ -17,8 +17,8 @@ const SplitText = ({ text, className }) => (
 const HeroBackground = () => {
     return (
         <div className="absolute inset-0 z-0 bg-black overflow-hidden">
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-900/30 rounded-full blur-[150px] mix-blend-screen pointer-events-none"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[150px] mix-blend-screen pointer-events-none"></div>
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(88, 28, 135, 0.3) 0%, transparent 70%)' }}></div>
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(30, 58, 138, 0.2) 0%, transparent 70%)' }}></div>
             <Canvas camera={{ position: [0, 0, 1] }}>
                 <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
                 <ambientLight intensity={0.5} />
