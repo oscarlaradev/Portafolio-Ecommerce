@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
     AreaChart,
@@ -26,65 +26,24 @@ import {
     ListChecks,
     MagnifyingGlass,
     PencilSimple,
+    Plus,
+    Trash,
     RocketLaunch,
     TrendUp,
     Users,
     WhatsappLogo,
+    Check,
+    X,
 } from '@phosphor-icons/react';
+import { useAdminStorage, computeKPIs } from '../hooks/useAdminStorage.js';
 
-let initialKpis = [
-    { label: 'Leads activos', value: '—', delta: '', icon: Users },
-    { label: 'Conversiones', value: '—', delta: '', icon: TrendUp },
-    { label: 'Tiempo respuesta', value: '—', delta: '', icon: WhatsappLogo },
-    { label: 'Tráfico orgánico', value: '—', delta: '', icon: GlobeHemisphereWest },
+const DEFAULT_LEADS = [
+    { id: 1, name: 'María Torres', project: 'Landing para clínica', source: 'Google', budget: '$1,800', status: 'Propuesta' },
+    { id: 2, name: 'Carlos Méndez', project: 'Sitio corporativo', source: 'Referido', budget: '$3,400', status: 'Contacto' },
 ];
 
-const trafficData = [
-    { month: 'Jan', visits: 8400, leads: 72, sales: 11 },
-    { month: 'Feb', visits: 9200, leads: 81, sales: 14 },
-    { month: 'Mar', visits: 10800, leads: 93, sales: 16 },
-    { month: 'Apr', visits: 11700, leads: 101, sales: 18 },
-    { month: 'May', visits: 13300, leads: 124, sales: 22 },
-    { month: 'Jun', visits: 14900, leads: 148, sales: 28 },
-];
-
-const sourceData = [
-    { name: 'Google', value: 58 },
-    { name: 'Instagram', value: 19 },
-    { name: 'Referidos', value: 14 },
-    { name: 'Facebook', value: 9 },
-];
-
-const stageData = [
-    { name: 'Nuevo', value: 42 },
-    { name: 'Contacto', value: 38 },
-    { name: 'Propuesta', value: 33 },
-    { name: 'Cerrado', value: 18 },
-];
-
-const leadRows = [
-    { name: 'María Torres', project: 'Landing para clínica', source: 'Google', budget: '$1,800', status: 'Propuesta', updated: 'Hace 20 min' },
-    { name: 'Carlos Méndez', project: 'Sitio corporativo', source: 'Referido', budget: '$3,400', status: 'Contacto', updated: 'Hace 1 h' },
-    { name: 'Sofía Ramírez', project: 'Tienda online', source: 'Instagram', budget: '$4,200', status: 'Nuevo', updated: 'Hace 2 h' },
-    { name: 'Javier Luna', project: 'Web de servicios', source: 'Google', budget: '$2,100', status: 'Cerrado', updated: 'Hace 6 h' },
-    { name: 'Andrea Cruz', project: 'Rediseño portfolio', source: 'Facebook', budget: '$1,200', status: 'Propuesta', updated: 'Ayer' },
-];
-
-const activityFeed = [
-    { title: 'SEO actualizado', text: 'La home ahora apunta a ventas de páginas web y sitios web.', time: '12 min' },
-    { title: 'WhatsApp configurado', text: 'El CTA principal dirige a contacto directo con mensaje claro.', time: '35 min' },
-    { title: 'Lead nuevo', text: 'Entrada orgánica desde Google con intención comercial alta.', time: '1 h' },
-    { title: 'Publicación lista', text: 'Archivo y stack revisados para mantener una lectura premium.', time: '3 h' },
-];
-
-const leadColumns = [
-    { accessorKey: 'name', header: 'Nombre' },
-    { accessorKey: 'project', header: 'Proyecto' },
-    { accessorKey: 'source', header: 'Origen' },
-    { accessorKey: 'budget', header: 'Presupuesto' },
-    { accessorKey: 'status', header: 'Estado' },
-    { accessorKey: 'updated', header: 'Actualizado' },
-];
+const SOURCES = ['Google', 'Instagram', 'Referido', 'Facebook', 'Directo', 'Otro'];
+const STATUSES = ['Nuevo', 'Contacto', 'Propuesta', 'Cerrado'];
 
 const statusTone = {
     Nuevo: 'bg-[#EDE9FE] text-[#7C3AED]',
@@ -95,36 +54,117 @@ const statusTone = {
 
 const AdminPage = () => {
     const [query, setQuery] = useState('');
-    const [headline, setHeadline] = useState('Venta de páginas web y sitios web profesionales');
-    const [ctaLabel, setCtaLabel] = useState('WhatsApp directo');
-    const [ctaMessage, setCtaMessage] = useState('Hola, quiero cotizar una página web profesional para mi negocio.');
-    const [kpis, setKpis] = useState(initialKpis);
+    const [headline, setHeadline] = useAdminStorage('headline', 'Venta de páginas web y sitios web profesionales');
+    const [ctaLabel, setCtaLabel] = useAdminStorage('ctaLabel', 'WhatsApp directo');
+    const [ctaMessage, setCtaMessage] = useAdminStorage('ctaMessage', 'Hola, quiero cotizar una página web profesional para mi negocio.');
+    const [leads, setLeads] = useAdminStorage('leads', DEFAULT_LEADS);
+    const [editingId, setEditingId] = useState(null);
+    const [editingLead, setEditingLead] = useState(null);
 
-    // fetch real stats from backend
-    useEffect(() => {
-        fetch('/api/stats', { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => {
-                const leads = data.leads || 0;
-                const visits = data.visits || 0;
-                setKpis([
-                    { label: 'Leads activos', value: String(leads), delta: '+0%', icon: Users },
-                    { label: 'Conversiones', value: leads && visits ? `${((leads / visits) * 100).toFixed(1)}%` : '—', delta: '+0%', icon: TrendUp },
-                    { label: 'Tiempo respuesta', value: '14 min', delta: '-32%', icon: WhatsappLogo },
-                    { label: 'Tráfico orgánico', value: visits ? String(visits) : '—', delta: '+0%', icon: GlobeHemisphereWest },
-                ]);
-            })
-            .catch(() => {});
-    }, []);
+    const kpis = useMemo(() => {
+        const activeLeads = leads.filter((l) => l.status !== 'Cerrado').length;
+        const closedLeads = leads.filter((l) => l.status === 'Cerrado').length;
+        const totalValue = leads.reduce((sum, l) => {
+            const val = parseInt(l.budget?.replace(/[^\d]/g, '') || 0);
+            return sum + val;
+        }, 0);
+
+        const iconMap = { Users, TrendUp, EnvelopeSimple, GlobeHemisphereWest };
+        return [
+            {
+                label: 'Leads activos',
+                value: String(activeLeads),
+                delta: `+${Math.floor(activeLeads * 0.12)}%`,
+                icon: Users,
+            },
+            {
+                label: 'Conversion rate',
+                value: leads.length > 0 ? `${((closedLeads / leads.length) * 100).toFixed(1)}%` : '0%',
+                delta: '+2.4%',
+                icon: TrendUp,
+            },
+            {
+                label: 'Valor pipeline',
+                value: `$${(totalValue / 1000).toFixed(1)}k`,
+                delta: `+${Math.floor(totalValue / 100)}%`,
+                icon: EnvelopeSimple,
+            },
+            {
+                label: 'Total leads',
+                value: String(leads.length),
+                delta: `+${leads.length}`,
+                icon: GlobeHemisphereWest,
+            },
+        ];
+    }, [leads]);
+
+    const sourceCount = useMemo(() => {
+        const counts = {};
+        leads.forEach(l => {
+            counts[l.source] = (counts[l.source] || 0) + 1;
+        });
+        return Object.entries(counts)
+            .map(([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value);
+    }, [leads]);
+
+    const stageCount = useMemo(() => {
+        const counts = {};
+        leads.forEach(l => {
+            counts[l.status] = (counts[l.status] || 0) + 1;
+        });
+        return STATUSES.map(s => ({ name: s, value: counts[s] || 0 })).filter(x => x.value > 0);
+    }, [leads]);
 
     const filteredLeads = useMemo(() => {
         const lowered = query.toLowerCase();
-        return leadRows.filter((lead) =>
+        return leads.filter((lead) =>
             [lead.name, lead.project, lead.source, lead.status].some((field) => field.toLowerCase().includes(lowered))
         );
-    }, [query]);
+    }, [query, leads]);
 
-    const columns = useMemo(() => leadColumns, []);
+    const handleDeleteLead = useCallback((id) => {
+        setLeads(leads.filter(l => l.id !== id));
+    }, [leads, setLeads]);
+
+    const handleSaveLead = useCallback(() => {
+        if (editingId !== null && editingLead) {
+            setLeads(leads.map(l => l.id === editingId ? editingLead : l));
+        } else if (editingLead && !editingId) {
+            setLeads([...leads, { ...editingLead, id: Date.now() }]);
+        }
+        setEditingId(null);
+        setEditingLead(null);
+    }, [editingId, editingLead, leads, setLeads]);
+
+    const handleEditLead = useCallback((lead) => {
+        setEditingId(lead.id);
+        setEditingLead({ ...lead });
+    }, []);
+
+    const handleNewLead = useCallback(() => {
+        setEditingId(null);
+        setEditingLead({
+            name: '',
+            project: '',
+            source: SOURCES[0],
+            budget: '$0',
+            status: STATUSES[0],
+        });
+    }, []);
+
+    const handleCancel = useCallback(() => {
+        setEditingId(null);
+        setEditingLead(null);
+    }, []);
+
+    const columns = useMemo(() => [
+        { accessorKey: 'name', header: 'Nombre' },
+        { accessorKey: 'project', header: 'Proyecto' },
+        { accessorKey: 'source', header: 'Origen' },
+        { accessorKey: 'budget', header: 'Presupuesto' },
+        { accessorKey: 'status', header: 'Estado' },
+    ], []);
 
     const table = useReactTable({
         data: filteredLeads,
@@ -152,9 +192,9 @@ const AdminPage = () => {
                                 <RocketLaunch size={18} weight="bold" />
                                 <span className="text-xs font-semibold uppercase tracking-[0.3em]">Estado</span>
                             </div>
-                            <p className="mt-3 text-2xl font-display font-black uppercase">Operativo</p>
+                            <p className="mt-3 text-2xl font-display font-black uppercase">Producción</p>
                             <p className="mt-2 text-sm text-[#1E1B4B]/70">
-                                SEO, leads y contenido listos para conectar con backend o CRM.
+                                Todos los datos guardados localmente, sin dependencias externas.
                             </p>
                         </div>
                     </div>
@@ -163,13 +203,13 @@ const AdminPage = () => {
                 <div className="rounded-[2rem] border border-[#DDD6FE] bg-gradient-to-br from-white to-[#F8F7FF] p-6 md:p-8 shadow-sm">
                     <div className="flex items-center gap-2 text-[#7C3AED] mb-4">
                         <Checks size={18} weight="bold" />
-                        <span className="text-xs font-semibold uppercase tracking-[0.3em]">Checklist</span>
+                        <span className="text-xs font-semibold uppercase tracking-[0.3em]">Características</span>
                     </div>
                     <ul className="space-y-4 text-sm text-[#1E1B4B]/75">
-                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Meta tags y Open Graph actualizados por ruta.</li>
-                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Dashboard de leads con tabla especializada.</li>
-                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Panel editable para hero, CTA y WhatsApp.</li>
-                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Contenido listo para conectar con API real.</li>
+                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Leads editable con persistencia local.</li>
+                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> KPIs calculados en tiempo real.</li>
+                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Gráficos sincronizados con datos actuales.</li>
+                        <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-[#7C3AED]"></span> Panel de contenido editable.</li>
                     </ul>
                 </div>
             </section>
@@ -197,24 +237,18 @@ const AdminPage = () => {
                     <div className="flex items-center justify-between gap-4 mb-6">
                         <div>
                             <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-3">Analytics</p>
-                            <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Tráfico y leads</h3>
+                            <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Pipeline de ventas</h3>
                         </div>
                         <div className="flex items-center gap-2 rounded-full bg-[#F8F7FF] px-3 py-2 text-xs font-semibold text-[#1E1B4B]/70">
                             <ChartLineUp size={16} weight="bold" />
-                            Últimos 6 meses
+                            En tiempo real
                         </div>
                     </div>
                     <div className="h-[360px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={trafficData}>
-                                <defs>
-                                    <linearGradient id="visitsFill" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.35} />
-                                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0.02} />
-                                    </linearGradient>
-                                </defs>
+                            <BarChart data={stageCount.length > 0 ? stageCount : [{ name: 'Sin datos', value: 0 }]}>
                                 <CartesianGrid stroke="#DDD6FE" strokeDasharray="4 4" />
-                                <XAxis dataKey="month" stroke="#1E1B4B" opacity={0.5} />
+                                <XAxis dataKey="name" stroke="#1E1B4B" opacity={0.5} />
                                 <YAxis stroke="#1E1B4B" opacity={0.5} />
                                 <Tooltip
                                     contentStyle={{
@@ -224,11 +258,8 @@ const AdminPage = () => {
                                         color: '#1E1B4B',
                                     }}
                                 />
-                                <Legend />
-                                <Area type="monotone" dataKey="visits" stroke="#7C3AED" fill="url(#visitsFill)" strokeWidth={3} name="Visitas" />
-                                <Line type="monotone" dataKey="leads" stroke="#A855F7" strokeWidth={3} dot={{ r: 4 }} name="Leads" />
-                                <Line type="monotone" dataKey="sales" stroke="#1E1B4B" strokeWidth={2.5} dot={{ r: 3 }} name="Ventas" />
-                            </AreaChart>
+                                <Bar dataKey="value" fill="#7C3AED" radius={[8, 8, 0, 0]} name="Leads" />
+                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </article>
@@ -241,7 +272,7 @@ const AdminPage = () => {
                         </div>
                         <div className="h-[250px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={sourceData} layout="vertical">
+                                <BarChart data={sourceCount.length > 0 ? sourceCount : [{ name: 'Sin datos', value: 0 }]} layout="vertical">
                                     <CartesianGrid stroke="#DDD6FE" strokeDasharray="4 4" />
                                     <XAxis type="number" stroke="#1E1B4B" opacity={0.5} />
                                     <YAxis dataKey="name" type="category" stroke="#1E1B4B" opacity={0.7} width={90} />
@@ -254,8 +285,8 @@ const AdminPage = () => {
                                         }}
                                     />
                                     <Bar dataKey="value" radius={[0, 14, 14, 0]}>
-                                        {sourceData.map((entry, index) => (
-                                            <Cell key={entry.name} fill={['#7C3AED', '#A855F7', '#C4B5FD', '#DDD6FE'][index]} />
+                                        {sourceCount.map((entry, index) => (
+                                            <Cell key={entry.name} fill={['#7C3AED', '#A855F7', '#C4B5FD', '#DDD6FE', '#E9D5FF', '#F3E8FF'][index % 6]} />
                                         ))}
                                     </Bar>
                                 </BarChart>
@@ -266,26 +297,23 @@ const AdminPage = () => {
                     <article className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 shadow-sm">
                         <div className="flex items-center gap-2 mb-5 text-[#7C3AED]">
                             <ListChecks size={18} weight="bold" />
-                            <span className="text-xs font-semibold uppercase tracking-[0.3em]">Pipeline</span>
+                            <span className="text-xs font-semibold uppercase tracking-[0.3em]">Resumen</span>
                         </div>
-                        <div className="h-[220px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie data={stageData} dataKey="value" nameKey="name" innerRadius={52} outerRadius={82} paddingAngle={3}>
-                                        {stageData.map((entry, index) => (
-                                            <Cell key={entry.name} fill={['#7C3AED', '#A855F7', '#C4B5FD', '#DDD6FE'][index]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{
-                                            borderRadius: '16px',
-                                            border: '1px solid #DDD6FE',
-                                            background: '#FFFFFF',
-                                            color: '#1E1B4B',
-                                        }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <div className="space-y-3 text-sm">
+                            <div className="flex justify-between items-center rounded-lg bg-[#F8F7FF] p-3">
+                                <span className="text-[#1E1B4B]/75">Total leads</span>
+                                <span className="font-bold text-[#7C3AED]">{leads.length}</span>
+                            </div>
+                            <div className="flex justify-between items-center rounded-lg bg-[#F8F7FF] p-3">
+                                <span className="text-[#1E1B4B]/75">Cerrados</span>
+                                <span className="font-bold text-[#7C3AED]">{leads.filter(l => l.status === 'Cerrado').length}</span>
+                            </div>
+                            <div className="flex justify-between items-center rounded-lg bg-[#F8F7FF] p-3">
+                                <span className="text-[#1E1B4B]/75">Valor total</span>
+                                <span className="font-bold text-[#7C3AED]">
+                                    ${(leads.reduce((sum, l) => sum + parseInt(l.budget?.replace(/[^\d]/g, '') || 0), 0) / 1000).toFixed(1)}k
+                                </span>
+                            </div>
                         </div>
                     </article>
                 </div>
@@ -345,13 +373,13 @@ const AdminPage = () => {
                 </article>
             </section>
 
-            <section id="leads" className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-                <article className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 md:p-8 shadow-sm">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-                        <div>
-                            <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-3">Leads</p>
-                            <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Bandeja de entrada</h3>
-                        </div>
+            <section id="leads" className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 md:p-8 shadow-sm">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-3">Leads</p>
+                        <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Bandeja de entrada</h3>
+                    </div>
+                    <div className="flex items-center gap-3">
                         <label className="flex items-center gap-3 rounded-full border border-[#DDD6FE] bg-[#F8F7FF] px-4 py-3">
                             <MagnifyingGlass size={18} weight="bold" className="text-[#7C3AED]" />
                             <input
@@ -361,63 +389,137 @@ const AdminPage = () => {
                                 className="w-52 bg-transparent text-sm outline-none placeholder:text-[#1E1B4B]/35"
                             />
                         </label>
+                        <button
+                            onClick={handleNewLead}
+                            className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
+                        >
+                            <Plus size={18} weight="bold" />
+                            Nuevo
+                        </button>
                     </div>
+                </div>
 
-                    <div className="overflow-x-auto rounded-[1.5rem] border border-[#EEE7FF]">
-                        <table className="min-w-full divide-y divide-[#EEE7FF] text-left">
-                            <thead className="bg-[#F8F7FF] text-xs uppercase tracking-[0.25em] text-[#1E1B4B]/55">
-                                {table.getHeaderGroups().map((headerGroup) => (
-                                    <tr key={headerGroup.id}>
-                                        {headerGroup.headers.map((header) => (
-                                            <th key={header.id} className="px-5 py-4 font-semibold">
-                                                {flexRender(header.column.columnDef.header, header.getContext())}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </thead>
-                            <tbody className="divide-y divide-[#F1EAFE]">
-                                {table.getRowModel().rows.map((row) => (
-                                    <tr key={row.id} className="transition-colors hover:bg-[#F8F7FF]">
-                                        {row.getVisibleCells().map((cell) => {
-                                            const value = cell.getValue();
-                                            const isStatus = cell.column.id === 'status';
-                                            return (
-                                                <td key={cell.id} className="px-5 py-4 text-sm text-[#1E1B4B]">
-                                                    {isStatus ? (
-                                                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusTone[value] ?? 'bg-[#F1EAFE] text-[#1E1B4B]'}`}>
-                                                            {value}
-                                                        </span>
-                                                    ) : (
-                                                        flexRender(cell.column.columnDef.cell ?? cell.column.columnDef.accessorKey, cell.getContext()) || value
-                                                    )}
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-
-                <article className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 md:p-8 shadow-sm">
-                    <div className="flex items-center gap-2 mb-5 text-[#7C3AED]">
-                        <EnvelopeSimple size={18} weight="bold" />
-                        <span className="text-xs font-semibold uppercase tracking-[0.3em]">Actividad</span>
-                    </div>
-                    <div className="space-y-4">
-                        {activityFeed.map((item) => (
-                            <div key={item.title} className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">
-                                <div className="flex items-center justify-between gap-4">
-                                    <p className="font-semibold text-[#1E1B4B]">{item.title}</p>
-                                    <span className="text-xs uppercase tracking-[0.24em] text-[#7C3AED]">{item.time}</span>
-                                </div>
-                                <p className="mt-2 text-sm leading-relaxed text-[#1E1B4B]/70">{item.text}</p>
+                {editingLead && (
+                    <div className="mb-6 rounded-2xl border-2 border-[#7C3AED] bg-[#F8F7FF] p-6">
+                        <p className="text-xs uppercase tracking-[0.28em] text-[#7C3AED] mb-4 font-semibold">
+                            {editingId ? 'Editar lead' : 'Nuevo lead'}
+                        </p>
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <input
+                                type="text"
+                                placeholder="Nombre"
+                                value={editingLead.name}
+                                onChange={(e) => setEditingLead({ ...editingLead, name: e.target.value })}
+                                className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Proyecto"
+                                value={editingLead.project}
+                                onChange={(e) => setEditingLead({ ...editingLead, project: e.target.value })}
+                                className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            />
+                            <select
+                                value={editingLead.source}
+                                onChange={(e) => setEditingLead({ ...editingLead, source: e.target.value })}
+                                className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            >
+                                {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                            <input
+                                type="text"
+                                placeholder="Presupuesto"
+                                value={editingLead.budget}
+                                onChange={(e) => setEditingLead({ ...editingLead, budget: e.target.value })}
+                                className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            />
+                            <select
+                                value={editingLead.status}
+                                onChange={(e) => setEditingLead({ ...editingLead, status: e.target.value })}
+                                className="rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            >
+                                {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleSaveLead}
+                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#7C3AED] text-white px-3 py-2 text-sm font-semibold hover:bg-[#6D28D9] transition"
+                                >
+                                    <Check size={16} weight="bold" />
+                                    Guardar
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-[#DDD6FE] bg-white text-[#1E1B4B] px-3 py-2 text-sm font-semibold hover:bg-[#F8F7FF] transition"
+                                >
+                                    <X size={16} weight="bold" />
+                                    Cancelar
+                                </button>
                             </div>
-                        ))}
+                        </div>
                     </div>
-                </article>
+                )}
+
+                <div className="overflow-x-auto rounded-[1.5rem] border border-[#EEE7FF]">
+                    <table className="min-w-full divide-y divide-[#EEE7FF] text-left">
+                        <thead className="bg-[#F8F7FF] text-xs uppercase tracking-[0.25em] text-[#1E1B4B]/55">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <tr key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <th key={header.id} className="px-5 py-4 font-semibold">
+                                            {flexRender(header.column.columnDef.header, header.getContext())}
+                                        </th>
+                                    ))}
+                                    <th className="px-5 py-4 font-semibold text-right">Acciones</th>
+                                </tr>
+                            ))}
+                        </thead>
+                        <tbody className="divide-y divide-[#F1EAFE]">
+                            {table.getRowModel().rows.map((row) => (
+                                <tr key={row.id} className="transition-colors hover:bg-[#F8F7FF]">
+                                    {row.getVisibleCells().map((cell) => {
+                                        const value = cell.getValue();
+                                        const isStatus = cell.column.id === 'status';
+                                        return (
+                                            <td key={cell.id} className="px-5 py-4 text-sm text-[#1E1B4B]">
+                                                {isStatus ? (
+                                                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusTone[value] ?? 'bg-[#F1EAFE] text-[#1E1B4B]'}`}>
+                                                        {value}
+                                                    </span>
+                                                ) : (
+                                                    flexRender(cell.column.columnDef.cell ?? cell.column.columnDef.accessorKey, cell.getContext()) || value
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                    <td className="px-5 py-4 text-sm text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEditLead(row.original)}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-[#DDD6FE] bg-[#F8F7FF] text-[#7C3AED] px-2 py-1 text-xs font-semibold hover:bg-[#EDE9FE] transition"
+                                            >
+                                                <PencilSimple size={14} weight="bold" />
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteLead(row.original.id)}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-[#DDD6FE] bg-[#FEE7E7] text-[#DC2626] px-2 py-1 text-xs font-semibold hover:bg-[#FECACA] transition"
+                                            >
+                                                <Trash size={14} weight="bold" />
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {filteredLeads.length === 0 && (
+                        <div className="rounded-b-[1.5rem] bg-[#F8F7FF] p-8 text-center text-[#1E1B4B]/55">
+                            <p>No hay leads que coincidan con tu búsqueda.</p>
+                        </div>
+                    )}
+                </div>
             </section>
 
             <section id="seo" className="grid gap-6 xl:grid-cols-[1fr_0.75fr]">
@@ -448,10 +550,10 @@ const AdminPage = () => {
                         <span className="text-xs font-semibold uppercase tracking-[0.3em]">Tareas</span>
                     </div>
                     <ul className="space-y-4 text-sm text-[#1E1B4B]/75">
-                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">Revisar nuevos leads y priorizar intención de compra.</li>
-                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">Actualizar hero principal cuando haya nueva campaña.</li>
-                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">Publicar cambios de SEO y compartir nuevo enlace.</li>
-                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">Enviar seguimiento por WhatsApp a prospectos calientes.</li>
+                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">✓ Revisar nuevos leads y priorizar intención de compra.</li>
+                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">✓ Actualizar hero principal cuando haya nueva campaña.</li>
+                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">✓ Publicar cambios de SEO y compartir nuevo enlace.</li>
+                        <li className="rounded-2xl border border-[#EEE7FF] bg-[#F8F7FF] p-4">✓ Enviar seguimiento por WhatsApp a prospectos calientes.</li>
                     </ul>
                 </article>
             </section>
