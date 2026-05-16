@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" rx="48" fill="#F5F3FF"/>
+  <circle cx="160" cy="120" r="170" fill="#DDD6FE" fill-opacity="0.7"/>
+  <circle cx="1040" cy="520" r="220" fill="#C4B5FD" fill-opacity="0.55"/>
+  <rect x="74" y="74" width="1052" height="482" rx="36" stroke="#DDD6FE" stroke-width="2"/>
+  <text x="90" y="178" fill="#7C3AED" font-family="Outfit, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="8">OSCAR LARA</text>
+  <text x="90" y="320" fill="#1E1B4B" font-family="Outfit, Arial, sans-serif" font-size="74" font-weight="900">Venta de páginas web</text>
+  <text x="90" y="406" fill="#1E1B4B" font-family="Outfit, Arial, sans-serif" font-size="74" font-weight="900">y sitios web profesionales</text>
+  <text x="92" y="486" fill="#4338CA" font-family="Space Grotesk, Arial, sans-serif" font-size="28" font-weight="500">Sitios que se ven premium, cargan rápido y convierten visitas en clientes.</text>
+  <rect x="90" y="516" width="214" height="54" rx="27" fill="#7C3AED"/>
+  <text x="120" y="552" fill="#FFFFFF" font-family="Outfit, Arial, sans-serif" font-size="22" font-weight="700">AUREUS</text>
+</svg>
