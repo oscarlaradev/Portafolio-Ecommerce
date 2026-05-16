@@ -41,14 +41,13 @@ const AdminFrame = () => {
             .then((r) => r.json())
             .then((data) => {
                 if (!data.authenticated) {
-                    // allow the login and reset paths
-                    if (!window.location.pathname.startsWith('/admin/login') && !window.location.pathname.startsWith('/admin/reset')) {
+                    if (!window.location.pathname.startsWith('/admin/login')) {
                         window.location.replace('/admin/login');
                     }
                 }
             })
             .catch(() => {
-                if (!window.location.pathname.startsWith('/admin/login') && !window.location.pathname.startsWith('/admin/reset')) {
+                if (!window.location.pathname.startsWith('/admin/login')) {
                     window.location.replace('/admin/login');
                 }
             });

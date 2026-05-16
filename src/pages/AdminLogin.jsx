@@ -91,7 +91,7 @@ export default function AdminLogin() {
                 <input type="checkbox" className="h-4 w-4 rounded border-[#EEE7FF] text-[#7C3AED]" />
                 <span>Recuérdame</span>
               </label>
-              <a href="/admin/reset" className="text-sm font-medium text-[#7C3AED]">Recuperar contraseña</a>
+              <span className="text-xs text-[#1E1B4B]/45">Sin recuperación automática</span>
             </div>
 
             <div>

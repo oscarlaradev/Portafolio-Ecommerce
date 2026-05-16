@@ -4,7 +4,6 @@ import SiteFrame from './layouts/SiteFrame.jsx';
 import AdminFrame from './layouts/AdminFrame.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import AdminLogin from './pages/AdminLogin.jsx';
-import AdminReset from './pages/AdminReset.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ArchivePage from './pages/ArchivePage.jsx';
 import StackPage from './pages/StackPage.jsx';
@@ -15,7 +14,6 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/reset" element={<AdminReset />} />
                 <Route path="/admin" element={<AdminFrame />}>
                     <Route index element={<AdminPage />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />

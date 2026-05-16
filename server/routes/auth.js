@@ -2,7 +2,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { db } from '../db.js';
-import { sendEmail, sendWhatsApp } from '../senders.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 const router = express.Router();
 
@@ -43,45 +42,19 @@ router.get('/session', (req, res) => {
   }
 });
 
-router.post('/request-reset', (req, res) => {
-  const { email, phone, via } = req.body; // via: 'email'|'whatsapp'
-  if (!email && !phone) return res.status(400).json({ error: 'Provide email or phone' });
-  const lookupField = email ? 'email' : 'phone';
-  const lookupVal = email || phone;
-  db.get(`SELECT * FROM users WHERE ${lookupField} = ?`, [lookupVal], (err, user) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!user) return res.json({ ok: true });
-    const token = Math.random().toString(36).slice(2, 8).toUpperCase();
-    const expires = Date.now() + 1000 * 60 * 30; // 30 minutes
-    db.run('INSERT INTO resets (user_id, token, expires_at) VALUES (?, ?, ?)', [user.id, token, new Date(expires).toISOString()], (err2) => {
-      if (err2) return res.status(500).json({ error: err2.message });
-      const message = `Tu código de recuperación es: ${token}`;
-      if (via === 'whatsapp' && user.phone) {
-        sendWhatsApp({ to: user.phone, body: message }).then(() => res.json({ ok: true })).catch(() => res.status(500).json({ error: 'failed to send' }));
-      } else {
-        sendEmail({ to: user.email, subject: 'Recuperación de contraseña', text: message }).then(() => res.json({ ok: true })).catch(() => res.status(500).json({ error: 'failed to send' }));
-      }
-    });
-  });
-});
+router.post('/set-password', async (req, res) => {
+  const { email, newPassword } = req.body;
+  if (!email || !newPassword) return res.status(400).json({ error: 'Missing' });
+  if (newPassword.length > 255) return res.status(400).json({ error: 'Password too long' });
 
-router.post('/reset', (req, res) => {
-  const { email, token, newPassword } = req.body;
-  if (!email || !token || !newPassword) return res.status(400).json({ error: 'Missing' });
   db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (!user) return res.status(400).json({ error: 'Invalid' });
-    db.get('SELECT * FROM resets WHERE user_id = ? AND token = ? AND used = 0', [user.id, token], async (err2, row) => {
-      if (err2) return res.status(500).json({ error: err2.message });
-      if (!row) return res.status(400).json({ error: 'Invalid or used token' });
-      if (new Date(row.expires_at) < new Date()) return res.status(400).json({ error: 'Expired' });
-      if (newPassword.length > 255) return res.status(400).json({ error: 'Password too long' });
-      const hash = await hashPassword(newPassword);
-      db.run('UPDATE users SET password = ? WHERE id = ?', [hash, user.id], (uErr) => {
-        if (uErr) return res.status(500).json({ error: uErr.message });
-        db.run('UPDATE resets SET used = 1 WHERE id = ?', [row.id]);
-        res.json({ ok: true });
-      });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const hash = await hashPassword(newPassword);
+    db.run('UPDATE users SET password = ? WHERE id = ?', [hash, user.id], (uErr) => {
+      if (uErr) return res.status(500).json({ error: uErr.message });
+      res.json({ ok: true });
     });
   });
 });

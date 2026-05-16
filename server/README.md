@@ -1,7 +1,7 @@
 Server API (local)
 
 1. Propósito
-- Pequeña API Express para: autenticación (login/logout/session), recuperación de contraseña vía email/WhatsApp, y registro/consulta de estadísticas.
+- Pequeña API Express para: autenticación (login/logout/session) y registro/consulta de estadísticas.
 
 2. Ejecutar localmente
 - Instalar dependencias del monorepo en la raíz: `npm install` (ya incluye backend deps añadidos).
@@ -12,16 +12,16 @@ Server API (local)
 - `POST /api/auth/login` { email, password } — inicia sesión, devuelve cookie `token` httpOnly.
 - `POST /api/auth/logout` — borra cookie.
 - `GET /api/auth/session` — comprueba sesión.
-- `POST /api/auth/request-reset` { email, phone, via } — envía código por `email` o `whatsapp`.
-- `POST /api/auth/reset` { email, token, newPassword } — restablece contraseña.
+- `POST /api/auth/set-password` { email, newPassword } — actualiza contraseña de forma manual.
 - `GET /api/stats` — devuelve estadísticas agregadas.
 - `POST /api/stats/record` { key, increment } — registra un evento para sumar.
 
-4. Configuración opcional (env)
-- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` — para envío de email.
-- `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_FROM` — para enviar WhatsApp (Twilio). Si no están, la petición de recuperación devolverá error de envío.
+4. Crear o actualizar contraseña admin
+- Definir `ADMIN_EMAIL` y `ADMIN_PASSWORD` en `.env`.
+- Ejecutar: `npm run set:admin-password`.
+- Este comando crea el usuario admin si no existe, o actualiza su contraseña si ya existe.
 
 5. Seguridad recomendada
 - Establecer `JWT_SECRET` fuerte en producción.
 - Ejecutar detrás de TLS (HTTPS).
-- Añadir rate-limiting y protección contra fuerza bruta para `/api/auth/login` y `/api/auth/request-reset`.
+- Añadir rate-limiting y protección contra fuerza bruta para `/api/auth/login`.
