@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 function readBody(req) {
   if (typeof req.body === 'object' && req.body !== null) return req.body;
@@ -32,7 +33,9 @@ export default async function handler(req, res) {
     });
   }
 
-  if (String(email).trim().toLowerCase() !== String(adminEmail).trim().toLowerCase() || String(password) !== String(adminPassword)) {
+  // Verificación directa encriptando la entrada del usuario a SHA-256
+  const hashedInput = crypto.createHash('sha256').update(String(password), 'utf8').digest('hex');
+  if (String(email).trim().toLowerCase() !== String(adminEmail).trim().toLowerCase() || hashedInput !== String(adminPassword)) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 

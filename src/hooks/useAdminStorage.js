@@ -13,7 +13,9 @@ export function useAdminStorage(key, initialValue) {
     const endpoint = `/api/content/${endpointMap[key] || key}`;
 
     useEffect(() => {
-        fetch(endpoint)
+        fetch(endpoint, {
+            credentials: 'include'
+        })
             .then((res) => {
                 if (!res.ok) throw new Error('Error al conectar con la API');
                 return res.json();
@@ -34,7 +36,8 @@ export function useAdminStorage(key, initialValue) {
             await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newData)
+                body: JSON.stringify(newData),
+                credentials: 'include'
             });
         } catch (error) {
             console.error(`Error guardando ${key}:`, error);

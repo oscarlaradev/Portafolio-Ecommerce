@@ -1,14 +1,12 @@
 /* eslint-disable no-undef */
 import crypto from 'crypto';
-import bcrypt from 'bcrypt';
 
+// Usamos SHA-256 nativo como solicitaste para máxima portabilidad y seguridad
 export async function hashPassword(plain) {
-  // Pre-hash with SHA-256 to allow passwords longer than bcrypt's 72-byte limit
-  const pre = crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
-  return bcrypt.hash(pre, 10);
+  return crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
 }
 
 export async function verifyPassword(plain, hashed) {
-  const pre = crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
-  return bcrypt.compare(pre, hashed);
+  const hash = crypto.createHash('sha256').update(String(plain), 'utf8').digest('hex');
+  return hash === hashed;
 }

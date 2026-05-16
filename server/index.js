@@ -38,6 +38,7 @@ if (ADMIN_PASSWORD) {
 import authRoutes from './routes/auth.js';
 import statsRoutes from './routes/stats.js';
 import contentRoutes from './routes/content.js';
+import leadsRoutes from './routes/leads.js';
 import rateLimit from 'express-rate-limit';
 
 // Basic rate limiting for auth endpoints
@@ -51,6 +52,7 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/leads', leadsRoutes);
 
 // Serve built frontend in production
 if (process.env.NODE_ENV === 'production') {

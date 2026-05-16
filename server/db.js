@@ -58,6 +58,16 @@ function init() {
       value TEXT,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+
+    db.run(`CREATE TABLE IF NOT EXISTS leads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      message TEXT,
+      status TEXT DEFAULT 'nuevo',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
   });
 }
 
