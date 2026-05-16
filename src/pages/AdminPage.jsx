@@ -35,7 +35,8 @@ import {
     Check,
     X,
 } from '@phosphor-icons/react';
-import { useAdminStorage, computeKPIs } from '../hooks/useAdminStorage.js';
+import { useAdminStorage } from '../hooks/useAdminStorage.js';
+import { useProjects, useStack, useContentMeta } from '../hooks/useContentData.js';
 
 const DEFAULT_LEADS = [
     { id: 1, name: 'María Torres', project: 'Landing para clínica', source: 'Google', budget: '$1,800', status: 'Propuesta' },
@@ -58,6 +59,9 @@ const AdminPage = () => {
     const [ctaLabel, setCtaLabel] = useAdminStorage('ctaLabel', 'WhatsApp directo');
     const [ctaMessage, setCtaMessage] = useAdminStorage('ctaMessage', 'Hola, quiero cotizar una página web profesional para mi negocio.');
     const [leads, setLeads] = useAdminStorage('leads', DEFAULT_LEADS);
+    const [projects, setProjects] = useProjects();
+    const [stack, setStack] = useStack();
+    const [contentMeta, setContentMeta] = useContentMeta();
     const [editingId, setEditingId] = useState(null);
     const [editingLead, setEditingLead] = useState(null);
 
@@ -519,6 +523,97 @@ const AdminPage = () => {
                             <p>No hay leads que coincidan con tu búsqueda.</p>
                         </div>
                     )}
+                </div>
+            </section>
+
+            <section id="portfolio" className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 md:p-8 shadow-sm">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-3">Portafolio</p>
+                        <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Gestionar proyectos</h3>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setProjects([...projects, { id: Date.now(), title: 'Nuevo Proyecto', desc: 'Descripción', stack: ['Tech'] }]);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
+                    >
+                        <Plus size={18} weight="bold" />
+                        Nuevo Proyecto
+                    </button>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                    {projects.map((proj) => (
+                        <div key={proj.id} className="rounded-2xl border border-[#DDD6FE] bg-[#F8F7FF] p-5 space-y-3">
+                            <input
+                                type="text"
+                                value={proj.title}
+                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, title: e.target.value } : p))}
+                                placeholder="Título"
+                                className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
+                            />
+                            <input
+                                type="text"
+                                value={proj.desc}
+                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, desc: e.target.value } : p))}
+                                placeholder="Descripción"
+                                className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            />
+                            <input
+                                type="text"
+                                value={proj.stack.join(', ')}
+                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, stack: e.target.value.split(',').map(s => s.trim()) } : p))}
+                                placeholder="Stack (ej: React, Tailwind)"
+                                className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
+                            />
+                            <button
+                                onClick={() => setProjects(projects.filter(p => p.id !== proj.id))}
+                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-[#DDD6FE] bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
+                            >
+                                <Trash size={16} weight="bold" />
+                                Eliminar
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section id="stack-edit" className="rounded-[2rem] border border-[#DDD6FE] bg-white p-6 md:p-8 shadow-sm">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.35em] text-[#7C3AED] mb-3">Tecnologías</p>
+                        <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Arsenal Tecnológico</h3>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setStack([...stack, { id: Date.now(), name: 'Nueva Tech' }]);
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
+                    >
+                        <Plus size={18} weight="bold" />
+                        Añadir
+                    </button>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-4">
+                    {stack.map((tech) => (
+                        <div key={tech.id} className="rounded-2xl border border-[#DDD6FE] bg-[#F8F7FF] p-4 space-y-3">
+                            <input
+                                type="text"
+                                value={tech.name}
+                                onChange={(e) => setStack(stack.map(t => t.id === tech.id ? { ...t, name: e.target.value } : t))}
+                                placeholder="Nombre"
+                                className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
+                            />
+                            <button
+                                onClick={() => setStack(stack.filter(t => t.id !== tech.id))}
+                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-[#DDD6FE] bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
+                            >
+                                <Trash size={16} weight="bold" />
+                            </button>
+                        </div>
+                    ))}
                 </div>
             </section>
 

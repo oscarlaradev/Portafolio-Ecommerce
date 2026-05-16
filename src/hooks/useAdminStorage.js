@@ -1,3 +1,5 @@
+import React from 'react';
+
 // useAdminStorage: local state management for admin panel
 export function useAdminStorage(key, initialValue) {
   const [state, setState] = React.useState(() => {

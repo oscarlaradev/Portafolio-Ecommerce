@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { animate } from 'animejs';
 import { Cube, Triangle, Hexagon, Sphere, ArrowUpRight } from '@phosphor-icons/react';
+import { useProjects, useContentMeta } from '../hooks/useContentData.js';
 
 const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay, overlayClass, iconColor }) => {
     const cardRef = useRef(null);
@@ -84,24 +85,43 @@ const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay,
 };
 
 const Exhibicion = () => {
-    const projects = [
-        { title: "Nova Analytics", desc: "Dashboard financiero cuántico.", num: "01", stack: ["React", "Three.js"], artClass: "from-[#F5F3FF] to-[#DDD6FE]", Icon: Cube, iconColor: "text-[#7C3AED]", overlayClass: <div className="art-layer absolute w-[150%] h-[150%] border-[1px] border-[#C4B5FD]/40 rounded-full top-[-50%] left-[-20%] animate-pulse"></div> },
-        { title: "E-Commerce X", desc: "Micro-interacciones en retail.", num: "02", stack: ["Vue.js", "GSAP"], artClass: "from-[#FFFFFF] to-[#EDE9FE]", Icon: Triangle, iconColor: "text-[#A855F7]", overlayClass: <><div className="art-layer absolute w-full h-[1px] bg-[#7C3AED]/25 rotate-45"></div><div className="art-layer absolute w-full h-[1px] bg-[#7C3AED]/25 -rotate-45"></div></> },
-        { title: "Creative Agency", desc: "Sitio inmersivo disruptivo.", num: "03", stack: ["Next.js", "AnimeJS"], artClass: "from-[#FFFFFF] to-[#F3E8FF]", Icon: Hexagon, iconColor: "text-[#6D28D9]", overlayClass: <div className="art-layer absolute inset-8 border border-dashed border-[#7C3AED]/25 rounded-full"></div> },
-        { title: "Lumina AI", desc: "Interfaz para inteligencia artificial.", num: "04", stack: ["Svelte", "Tailwind"], artClass: "from-[#F8F7FF] to-[#E9D5FF]", Icon: Sphere, iconColor: "text-[#7C3AED]", overlayClass: <div className="art-layer absolute w-[80%] h-[80%] bg-[#C4B5FD]/30 blur-2xl rounded-full"></div> }
+    const [projects] = useProjects();
+    const [contentMeta] = useContentMeta();
+
+    const iconMap = { Cube, Triangle, Hexagon, Sphere };
+    const artClasses = ["from-[#F5F3FF] to-[#DDD6FE]", "from-[#FFFFFF] to-[#EDE9FE]", "from-[#FFFFFF] to-[#F3E8FF]", "from-[#F8F7FF] to-[#E9D5FF]"];
+    const icons = [Cube, Triangle, Hexagon, Sphere];
+    const iconColors = ["text-[#7C3AED]", "text-[#A855F7]", "text-[#6D28D9]", "text-[#7C3AED]"];
+    const overlayClasses = [
+        <div key="0" className="art-layer absolute w-[150%] h-[150%] border-[1px] border-[#C4B5FD]/40 rounded-full top-[-50%] left-[-20%] animate-pulse"></div>,
+        <><div key="1a" className="art-layer absolute w-full h-[1px] bg-[#7C3AED]/25 rotate-45"></div><div key="1b" className="art-layer absolute w-full h-[1px] bg-[#7C3AED]/25 -rotate-45"></div></>,
+        <div key="2" className="art-layer absolute inset-8 border border-dashed border-[#7C3AED]/25 rounded-full"></div>,
+        <div key="3" className="art-layer absolute w-[80%] h-[80%] bg-[#C4B5FD]/30 blur-2xl rounded-full"></div>,
     ];
 
     return (
         <section id="exhibicion" className="py-20 px-6 md:px-12 lg:px-24 relative z-10 w-full">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20 w-full">
-                <h2 className="text-5xl md:text-8xl font-display font-black uppercase tracking-tight">El<br/>Archivo</h2>
+                <h2 className="text-5xl md:text-8xl font-display font-black uppercase tracking-tight">{contentMeta.archiveTitle}</h2>
                 <div className="hidden md:block h-[1px] bg-[#DDD6FE] flex-grow mb-6 mx-10"></div>
-                <p className="text-[#1E1B4B]/70 max-w-sm md:mb-4 text-lg">Una selección de proyectos digitales donde la forma sigue a la función de manera espectacular.</p>
+                <p className="text-[#1E1B4B]/70 max-w-sm md:mb-4 text-lg">{contentMeta.archiveDesc}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 w-full">
                 {projects.map((p, i) => (
-                    <ProjectCard key={i} index={i} title={p.title} desc={p.desc} stack={p.stack} number={p.num} artClass={p.artClass} Icon={p.Icon} iconColor={p.iconColor} overlayClass={p.overlayClass} delay={(i%2)*200} />
+                    <ProjectCard 
+                        key={p.id} 
+                        index={i} 
+                        title={p.title} 
+                        desc={p.desc} 
+                        stack={p.stack} 
+                        number={String(i + 1).padStart(2, '0')} 
+                        artClass={artClasses[i % artClasses.length]} 
+                        Icon={icons[i % icons.length]} 
+                        iconColor={iconColors[i % iconColors.length]} 
+                        overlayClass={overlayClasses[i % overlayClasses.length]} 
+                        delay={(i%2)*200} 
+                    />
                 ))}
             </div>
         </section>
