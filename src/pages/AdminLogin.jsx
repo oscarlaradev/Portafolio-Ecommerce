@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LockKey, Envelope } from '@phosphor-icons/react';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('admin@local');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [show, setShow] = useState(false);
@@ -57,6 +57,7 @@ export default function AdminLogin() {
                 <input
                   aria-label="email"
                   type="email"
+                  placeholder="admin@tudominio.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
