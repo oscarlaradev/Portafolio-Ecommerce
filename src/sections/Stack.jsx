@@ -1,11 +1,19 @@
+import { useEffect, useState } from 'react';
 import { FileCode, FileJs, Atom, CaretUp, Wind, ShootingStar, Cube, GitBranch } from '@phosphor-icons/react';
-import { useStack, useContentMeta } from '../hooks/useContentData.js';
+import { useContentMeta } from '../hooks/useContentData.js';
 
 const Stack = () => {
-    const [techs] = useStack();
+    const [techs, setTechs] = useState([]);
     const [contentMeta] = useContentMeta();
 
-    const iconMap = { FileCode, FileJs, Atom, CaretUp, Wind, ShootingStar, Cube, GitBranch };
+    useEffect(() => {
+        // Load stack from server
+        fetch('/api/content/stack')
+            .then(r => r.json())
+            .then(data => setTechs(data))
+            .catch(() => setTechs([]));
+    }, []);
+
     const icons = [FileCode, FileJs, Atom, CaretUp, Wind, ShootingStar, Cube, GitBranch];
     const colors = ['hover:text-[#7C3AED]', 'hover:text-[#A855F7]', 'hover:text-[#7C3AED]', 'hover:text-[#1E1B4B]', 'hover:text-[#7C3AED]', 'hover:text-[#A855F7]', 'hover:text-[#1E1B4B]', 'hover:text-[#7C3AED]'];
 

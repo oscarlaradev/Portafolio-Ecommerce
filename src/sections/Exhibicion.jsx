@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { animate } from 'animejs';
 import { Cube, Triangle, Hexagon, Sphere, ArrowUpRight } from '@phosphor-icons/react';
-import { useProjects, useContentMeta } from '../hooks/useContentData.js';
+import { useContentMeta } from '../hooks/useContentData.js';
 
 const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay, overlayClass, iconColor }) => {
     const cardRef = useRef(null);
@@ -85,8 +85,16 @@ const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay,
 };
 
 const Exhibicion = () => {
-    const [projects] = useProjects();
+    const [projects, setProjects] = useState([]);
     const [contentMeta] = useContentMeta();
+
+    useEffect(() => {
+        // Load projects from server
+        fetch('/api/content/projects')
+            .then(r => r.json())
+            .then(data => setProjects(data))
+            .catch(() => setProjects([]));
+    }, []);
 
     const iconMap = { Cube, Triangle, Hexagon, Sphere };
     const artClasses = ["from-[#F5F3FF] to-[#DDD6FE]", "from-[#FFFFFF] to-[#EDE9FE]", "from-[#FFFFFF] to-[#F3E8FF]", "from-[#F8F7FF] to-[#E9D5FF]"];

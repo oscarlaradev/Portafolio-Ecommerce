@@ -36,7 +36,7 @@ import {
     X,
 } from '@phosphor-icons/react';
 import { useAdminStorage } from '../hooks/useAdminStorage.js';
-import { useProjects, useStack, useContentMeta } from '../hooks/useContentData.js';
+import { useServerContent } from '../hooks/useServerContent.js';
 
 const DEFAULT_LEADS = [
     { id: 1, name: 'María Torres', project: 'Landing para clínica', source: 'Google', budget: '$1,800', status: 'Propuesta' },
@@ -59,11 +59,19 @@ const AdminPage = () => {
     const [ctaLabel, setCtaLabel] = useAdminStorage('ctaLabel', 'WhatsApp directo');
     const [ctaMessage, setCtaMessage] = useAdminStorage('ctaMessage', 'Hola, quiero cotizar una página web profesional para mi negocio.');
     const [leads, setLeads] = useAdminStorage('leads', DEFAULT_LEADS);
-    const [projects, setProjects] = useProjects();
-    const [stack, setStack] = useStack();
-    const [contentMeta, setContentMeta] = useContentMeta();
+    
+    // Sync with server
+    const { data: projects, setData: setProjects, save: saveProject, remove: removeProject, load: loadProjects } = useServerContent('/projects', []);
+    const { data: stack, setData: setStack, save: saveStackItem, remove: removeStackItem, load: loadStack } = useServerContent('/stack', []);
+    
     const [editingId, setEditingId] = useState(null);
     const [editingLead, setEditingLead] = useState(null);
+
+    // Load server data on mount
+    useEffect(() => {
+        loadProjects();
+        loadStack();
+    }, [loadProjects, loadStack]);
 
     const kpis = useMemo(() => {
         const activeLeads = leads.filter((l) => l.status !== 'Cerrado').length;
@@ -534,7 +542,7 @@ const AdminPage = () => {
                     </div>
                     <button
                         onClick={() => {
-                            setProjects([...projects, { id: Date.now(), title: 'Nuevo Proyecto', desc: 'Descripción', stack: ['Tech'] }]);
+                            saveProject({ title: 'Nuevo Proyecto', desc: 'Descripción', stack: ['Tech'] });
                         }}
                         className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
                     >
@@ -549,26 +557,26 @@ const AdminPage = () => {
                             <input
                                 type="text"
                                 value={proj.title}
-                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, title: e.target.value } : p))}
+                                onChange={(e) => saveProject({ ...proj, title: e.target.value })}
                                 placeholder="Título"
                                 className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
                             />
                             <input
                                 type="text"
                                 value={proj.desc}
-                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, desc: e.target.value } : p))}
+                                onChange={(e) => saveProject({ ...proj, desc: e.target.value })}
                                 placeholder="Descripción"
                                 className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
                             />
                             <input
                                 type="text"
                                 value={proj.stack.join(', ')}
-                                onChange={(e) => setProjects(projects.map(p => p.id === proj.id ? { ...p, stack: e.target.value.split(',').map(s => s.trim()) } : p))}
+                                onChange={(e) => saveProject({ ...proj, stack: e.target.value.split(',').map(s => s.trim()) })}
                                 placeholder="Stack (ej: React, Tailwind)"
                                 className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm outline-none focus:border-[#7C3AED]"
                             />
                             <button
-                                onClick={() => setProjects(projects.filter(p => p.id !== proj.id))}
+                                onClick={() => removeProject(proj.id)}
                                 className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-[#DDD6FE] bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
                             >
                                 <Trash size={16} weight="bold" />
@@ -587,7 +595,7 @@ const AdminPage = () => {
                     </div>
                     <button
                         onClick={() => {
-                            setStack([...stack, { id: Date.now(), name: 'Nueva Tech' }]);
+                            saveStackItem({ name: 'Nueva Tech' });
                         }}
                         className="inline-flex items-center gap-2 rounded-full bg-[#7C3AED] text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
                     >
@@ -602,12 +610,12 @@ const AdminPage = () => {
                             <input
                                 type="text"
                                 value={tech.name}
-                                onChange={(e) => setStack(stack.map(t => t.id === tech.id ? { ...t, name: e.target.value } : t))}
+                                onChange={(e) => saveStackItem({ ...tech, name: e.target.value })}
                                 placeholder="Nombre"
                                 className="w-full rounded-lg border border-[#DDD6FE] bg-white px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
                             />
                             <button
-                                onClick={() => setStack(stack.filter(t => t.id !== tech.id))}
+                                onClick={() => removeStackItem(tech.id)}
                                 className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-[#DDD6FE] bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
                             >
                                 <Trash size={16} weight="bold" />
