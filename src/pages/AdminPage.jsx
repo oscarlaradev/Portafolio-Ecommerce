@@ -62,7 +62,6 @@ const AdminPage = () => {
     
     // Sync with server
     const { data: projects, setData: setProjects, save: saveProject, remove: removeProject, load: loadProjects } = useServerContent('/projects', []);
-    const { data: stack, setData: setStack, save: saveStackItem, remove: removeStackItem, load: loadStack } = useServerContent('/stack', []);
     
     const [editingId, setEditingId] = useState(null);
     const [editingLead, setEditingLead] = useState(null);
@@ -70,8 +69,7 @@ const AdminPage = () => {
     // Load server data on mount
     useEffect(() => {
         loadProjects();
-        loadStack();
-    }, [loadProjects, loadStack]);
+    }, [loadProjects]);
 
     const kpis = useMemo(() => {
         const activeLeads = leads.filter((l) => l.status !== 'Cerrado').length;
@@ -581,51 +579,6 @@ const AdminPage = () => {
                             >
                                 <Trash size={16} weight="bold" />
                                 Eliminar
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            <section id="stack-edit" className="rounded-[2rem] border border-white/10 bg-[#0a0a0a] p-6 md:p-8 shadow-sm">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-                    <div>
-                        <p className="text-xs uppercase tracking-[0.35em] text-purple-400 mb-3">Tecnologías</p>
-                        <h3 className="font-display text-2xl md:text-3xl font-black uppercase">Arsenal Tecnológico</h3>
-                    </div>
-                    <button
-                        onClick={() => {
-                            saveStackItem({ name: 'Nueva Tech' });
-                        }}
-                        className="inline-flex items-center gap-2 rounded-full bg-purple-600 text-white px-4 py-3 text-sm font-semibold hover:bg-[#6D28D9] transition"
-                    >
-                        <Plus size={18} weight="bold" />
-                        Añadir
-                    </button>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-4">
-                    {stack.map((tech) => (
-                        <div key={tech.id} className="rounded-2xl border border-white/10 bg-[#0a0a0a]/5 p-4 space-y-3">
-                            <input
-                                type="text"
-                                value={tech.name}
-                                onChange={(e) => saveStackItem({ ...tech, name: e.target.value })}
-                                placeholder="Nombre"
-                                className="w-full rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
-                            />
-                            <input
-                                type="text"
-                                value={tech.icon || ''}
-                                onChange={(e) => saveStackItem({ ...tech, icon: e.target.value })}
-                                placeholder="Icono (ej. Atom, ReactLogo)"
-                                className="w-full rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-xs text-gray-400 outline-none focus:border-[#7C3AED]"
-                            />
-                            <button
-                                onClick={() => removeStackItem(tech.id)}
-                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
-                            >
-                                <Trash size={16} weight="bold" />
                             </button>
                         </div>
                     ))}

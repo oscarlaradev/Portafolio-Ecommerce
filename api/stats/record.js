@@ -1,4 +1,5 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+const kv = Redis.fromEnv();
 
 function readBody(req) {
   if (typeof req.body === 'object' && req.body !== null) return req.body;
