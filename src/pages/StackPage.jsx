@@ -1,7 +1,10 @@
 import Stack from '../sections/Stack.jsx';
 import PageHero from '../components/PageHero.jsx';
+import { useAdminStorage } from '../hooks/useAdminStorage.js';
 
 const StackPage = () => {
+    const [techs] = useAdminStorage('stack', []);
+
     return (
         <>
             <PageHero
@@ -12,7 +15,7 @@ const StackPage = () => {
                 ctaHref="/archivo"
                 note="Selección curada de tecnologías orientadas a velocidad, animación y claridad visual."
                 stats={[
-                    { label: 'Capas', value: 'UI + Motion' },
+                    { label: 'Tecnologías', value: String(techs.length).padStart(2, '0') },
                     { label: 'Rendimiento', value: 'Optimizado' },
                 ]}
             />

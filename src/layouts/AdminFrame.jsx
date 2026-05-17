@@ -110,13 +110,24 @@ const AdminFrame = () => {
                         <p className="mt-3 text-sm text-gray-400 leading-relaxed">
                             Dashboard listo para operar con métricas, leads y contenido editable.
                         </p>
-                        <Link
-                            to="/"
-                            className="mt-4 inline-flex items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-500"
-                        >
-                            Ver sitio público
-                            <ArrowSquareOut size={16} weight="bold" />
-                        </Link>
+                        <div className="mt-4 flex flex-col gap-2">
+                            <Link
+                                to="/"
+                                className="inline-flex justify-center items-center gap-2 rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-500"
+                            >
+                                Ver sitio público
+                                <ArrowSquareOut size={16} weight="bold" />
+                            </Link>
+                            <button
+                                onClick={async () => {
+                                    await fetch('/api/auth/logout', { method: 'POST' });
+                                    window.location.replace('/admin/login');
+                                }}
+                                className="inline-flex justify-center items-center gap-2 rounded-full border border-white/10 bg-[#0a0a0a]/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30"
+                            >
+                                Cerrar sesión
+                            </button>
+                        </div>
                     </div>
                 </aside>
 

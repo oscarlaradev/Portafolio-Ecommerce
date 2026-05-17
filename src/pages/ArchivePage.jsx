@@ -1,7 +1,10 @@
 import Exhibicion from '../sections/Exhibicion.jsx';
 import PageHero from '../components/PageHero.jsx';
+import { useProjects } from '../hooks/useContentData.js';
 
 const ArchivePage = () => {
+    const [projects] = useProjects();
+
     return (
         <>
             <PageHero
@@ -12,7 +15,7 @@ const ArchivePage = () => {
                 ctaHref="/"
                 note="Casos, interfaces y sistemas con foco en impacto visual y claridad funcional."
                 stats={[
-                    { label: 'Proyectos', value: '04' },
+                    { label: 'Proyectos', value: String(projects.length).padStart(2, '0') },
                     { label: 'Enfoque', value: 'Editorial UI' },
                 ]}
             />

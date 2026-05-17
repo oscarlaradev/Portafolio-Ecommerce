@@ -614,6 +614,13 @@ const AdminPage = () => {
                                 placeholder="Nombre"
                                 className="w-full rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm font-bold outline-none focus:border-[#7C3AED]"
                             />
+                            <input
+                                type="text"
+                                value={tech.icon || ''}
+                                onChange={(e) => saveStackItem({ ...tech, icon: e.target.value })}
+                                placeholder="Icono (ej. Atom, ReactLogo)"
+                                className="w-full rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-xs text-gray-400 outline-none focus:border-[#7C3AED]"
+                            />
                             <button
                                 onClick={() => removeStackItem(tech.id)}
                                 className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#FEE7E7] text-[#DC2626] px-3 py-2 text-sm font-semibold hover:bg-[#FECACA] transition"
