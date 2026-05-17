@@ -57,7 +57,7 @@ const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay,
                     <div className="absolute top-4 left-4 right-4 flex justify-between z-20">
                         <span className="bg-[#0a0a0a]/80 backdrop-blur-md px-4 py-2 rounded-full text-xs font-mono border border-white/10 text-white">{number}</span>
                         <div className="flex gap-2">
-                            {stack.map((s, i) => (
+                            {Array.isArray(stack) && stack.map((s, i) => (
                                 <span key={i} className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${i===0 ? 'bg-purple-600 text-white' : 'bg-[#0a0a0a]/80 backdrop-blur-md text-white border border-white/10'}`}>
                                     {s}
                                 </span>

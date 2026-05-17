@@ -21,7 +21,7 @@ const StackPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {[
                         ['Core', 'React, Vite, routing y arquitectura modular para escalar sin fricción.'],
-                        ['Motion', 'Anime.js para entradas, microinteracciones y transición entre estados.'],
+                        ['Motion', 'GSAP para entradas, microinteracciones y transición entre estados.'],
                         ['Delivery', 'Construcción simple, componentes claros y flujo de trabajo directo.'],
                         ['Quality', 'Lint, build y chequeo visual antes de cerrar cada cambio.'],
                     ].map(([label, text]) => (
