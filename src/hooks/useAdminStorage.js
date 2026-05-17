@@ -16,16 +16,20 @@ export function useAdminStorage(key, initialValue) {
         fetch(endpoint, {
             credentials: 'include'
         })
-            .then((res) => {
-                if (!res.ok) throw new Error('Error al conectar con la API');
-                return res.json();
+            .then(async (res) => {
+                if (!res.ok) throw new Error('API Error');
+                const text = await res.text();
+                if (text.startsWith('<')) throw new Error('Not JSON (Vite Fallback)');
+                return JSON.parse(text);
             })
             .then((serverData) => {
                 if (serverData && (Array.isArray(serverData) ? serverData.length > 0 : Object.keys(serverData).length > 0)) {
                     setData(serverData);
                 }
             })
-            .catch((err) => console.error(`Error cargando ${key}:`, err))
+            .catch(() => {
+                // Silently fail in local dev without Vercel CLI
+            })
             .finally(() => setLoading(false));
     }, [endpoint, key]);
 

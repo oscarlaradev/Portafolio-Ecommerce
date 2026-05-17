@@ -8,10 +8,12 @@ export function useServerContent(endpoint, initialValue = []) {
     setLoading(true);
     try {
       const response = await fetch(`/api/content${endpoint}`);
-      const result = await response.json();
-      setData(result);
+      if (!response.ok) throw new Error('API Error');
+      const text = await response.text();
+      if (text.startsWith('<')) throw new Error('Not JSON (Vite Fallback)');
+      setData(JSON.parse(text));
     } catch (error) {
-      console.error(`Error loading ${endpoint}:`, error);
+      // Silently fail
     } finally {
       setLoading(false);
     }

@@ -1,41 +1,36 @@
 import { useEffect, useState } from 'react';
-import { createTimeline, stagger } from 'animejs';
+import gsap from 'gsap';
 
 const Preloader = ({ onComplete }) => {
     const [progressText, setProgressText] = useState('0%');
 
     useEffect(() => {
-        const loaderTimeline = createTimeline({ 
-            ease: 'outExpo',
+        const tl = gsap.timeline({
             onComplete: () => {
                 if(onComplete) onComplete();
             }
         });
         
-        loaderTimeline
-            .add('.load-char', {
-                translateY: ['100%', '0%'],
-                opacity: [0, 1],
-                duration: 400,
-                delay: stagger(40)
-            })
-            .add('#loader-progress', {
-                width: ['0%', '100%'],
-                duration: 400,
-                ease: 'inOutCirc',
-                onUpdate: (animation) => {
-                    const progress = animation.progress <= 1 ? animation.progress * 100 : animation.progress;
-                    setProgressText(`${Math.round(progress)}%`);
+        tl.fromTo('.load-char', 
+            { y: '100%', opacity: 0 },
+            { y: '0%', opacity: 1, duration: 0.4, stagger: 0.04, ease: 'expo.out' }
+        )
+        .fromTo('#loader-progress', 
+            { width: '0%' },
+            { 
+                width: '100%', 
+                duration: 0.4, 
+                ease: 'circ.inOut',
+                onUpdate: function() {
+                    setProgressText(`${Math.round(this.progress() * 100)}%`);
                 }
-            })
-            .add('#loader', {
-                translateY: '-100%',
-                duration: 500,
-                ease: 'inOutQuart',
-                delay: 100
-            });
+            }
+        )
+        .to('#loader', 
+            { y: '-100%', duration: 0.5, ease: 'quart.inOut' },
+            "+=0.1"
+        );
 
-        loaderTimeline.play();
     }, [onComplete]);
 
     return (

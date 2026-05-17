@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { animate } from 'animejs';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+gsap.registerPlugin(ScrollTrigger);
 import Preloader from '../components/Preloader.jsx';
 import CustomCursor from '../components/CustomCursor.jsx';
 import Navbar from '../components/Navbar.jsx';
@@ -127,121 +129,85 @@ const SiteFrame = () => {
     }, [location.pathname]);
 
     useEffect(() => {
-        if (!isLoaded) return;
 
-        const handleScroll = () => {
-            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-            const progressEl = document.getElementById('scroll-progress');
-            if (progressEl) progressEl.style.width = `${progress}%`;
-        };
+        // GSAP Scroll Progress
+        const progressTl = gsap.to('#scroll-progress', {
+            width: '100%',
+            ease: 'none',
+            scrollTrigger: {
+                trigger: document.documentElement,
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: true,
+            }
+        });
 
-        const orbTargets = {
-            orb1: { x: 0, y: 0 },
-            orb2: { x: 0, y: 0 },
-        };
-        const orbGoals = {
-            orb1: { x: 0, y: 0 },
-            orb2: { x: 0, y: 0 },
-        };
-        let rafId = 0;
-
-        const tickOrbs = () => {
-            orbTargets.orb1.x += (orbGoals.orb1.x - orbTargets.orb1.x) * 0.08;
-            orbTargets.orb1.y += (orbGoals.orb1.y - orbTargets.orb1.y) * 0.08;
-            orbTargets.orb2.x += (orbGoals.orb2.x - orbTargets.orb2.x) * 0.08;
-            orbTargets.orb2.y += (orbGoals.orb2.y - orbTargets.orb2.y) * 0.08;
-
-            const orb1 = document.getElementById('orb1');
-            const orb2 = document.getElementById('orb2');
-            if (orb1) orb1.style.transform = `translate3d(${orbTargets.orb1.x}px, ${orbTargets.orb1.y}px, 0)`;
-            if (orb2) orb2.style.transform = `translate3d(${orbTargets.orb2.x}px, ${orbTargets.orb2.y}px, 0)`;
-
-            rafId = window.requestAnimationFrame(tickOrbs);
-        };
-
-        document.body.classList.remove('admin-mode');
+        // Orbs mouse follower
+        const orb1X = gsap.quickTo('#orb1', 'x', { duration: 0.8, ease: 'power3' });
+        const orb1Y = gsap.quickTo('#orb1', 'y', { duration: 0.8, ease: 'power3' });
+        const orb2X = gsap.quickTo('#orb2', 'x', { duration: 0.8, ease: 'power3' });
+        const orb2Y = gsap.quickTo('#orb2', 'y', { duration: 0.8, ease: 'power3' });
 
         const handleMouseMove = (event) => {
             const x = event.clientX / window.innerWidth;
             const y = event.clientY / window.innerHeight;
-            orbGoals.orb1.x = x * 100;
-            orbGoals.orb1.y = y * 100;
-            orbGoals.orb2.x = x * -100;
-            orbGoals.orb2.y = y * -100;
+            orb1X(x * 100);
+            orb1Y(y * 100);
+            orb2X(x * -100);
+            orb2Y(y * -100);
         };
 
-        const revealIn = (element) => {
-            animate(element, {
-                translateY: [80, 0],
-                opacity: [0, 1],
-                duration: 900,
-                ease: 'outQuart',
-                delay: Number(element.dataset.delay || 0),
-            });
-        };
+        document.body.classList.remove('admin-mode');
+        document.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-        const revealFooter = (element) => {
-            animate(element, {
-                translateY: [50, 0],
-                opacity: [0, 1],
-                scale: [0.96, 1],
-                duration: 900,
-                ease: 'outQuart',
-                delay: Number(element.dataset.delay || 0),
-            });
-        };
-
-        const resetReveal = (element) => {
-            animate(element, {
-                translateY: element.classList.contains('scroll-anim-footer') ? 48 : 72,
-                opacity: 0,
-                scale: element.classList.contains('scroll-anim-footer') ? 0.98 : 1,
-                duration: 250,
-                ease: 'outQuad',
-            });
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    if (entry.target.classList.contains('scroll-anim')) {
-                        revealIn(entry.target);
-                    }
-
-                    if (entry.target.classList.contains('scroll-anim-footer')) {
-                        revealFooter(entry.target);
-                    }
-                } else {
-                    if (entry.target.classList.contains('scroll-anim') || entry.target.classList.contains('scroll-anim-footer')) {
-                        resetReveal(entry.target);
+        // Scroll Animations
+        const scrollAnims = gsap.utils.toArray('.scroll-anim');
+        scrollAnims.forEach((el) => {
+            const delay = Number(el.dataset.delay || 0) / 1000;
+            gsap.fromTo(el, 
+                { y: 80, opacity: 0 },
+                {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.9,
+                    ease: 'power3.out',
+                    delay: delay,
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 85%',
+                        toggleActions: 'play reverse play reverse'
                     }
                 }
-            });
-        }, { root: null, rootMargin: '0px', threshold: 0.1 });
+            );
+        });
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        document.addEventListener('mousemove', handleMouseMove, { passive: true });
-        tickOrbs();
-        handleScroll();
-
-        const observeTargets = () => {
-            observer.disconnect();
-            document.querySelectorAll('.scroll-anim, .scroll-anim-footer').forEach((el) => resetReveal(el));
-            document.querySelectorAll('.scroll-anim, .scroll-anim-footer').forEach((el) => observer.observe(el));
-        };
-
-        const observeTimer = window.setTimeout(observeTargets, 60);
+        const footerAnims = gsap.utils.toArray('.scroll-anim-footer');
+        footerAnims.forEach((el) => {
+            const delay = Number(el.dataset.delay || 0) / 1000;
+            gsap.fromTo(el, 
+                { y: 50, opacity: 0, scale: 0.96 },
+                {
+                    y: 0,
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.9,
+                    ease: 'power3.out',
+                    delay: delay,
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 95%',
+                        toggleActions: 'play reverse play reverse'
+                    }
+                }
+            );
+        });
 
         return () => {
-            window.removeEventListener('scroll', handleScroll);
             document.removeEventListener('mousemove', handleMouseMove);
-            window.cancelAnimationFrame(rafId);
-            window.clearTimeout(observeTimer);
-            observer.disconnect();
+            ScrollTrigger.getAll().forEach(t => t.kill());
+            if (progressTl) progressTl.kill();
         };
-    }, [isLoaded, location.pathname]);
+    }, [isLoaded]);
 
     const backgroundStyles = useMemo(() => ({
         noise: {

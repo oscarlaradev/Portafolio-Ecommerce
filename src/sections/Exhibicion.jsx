@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { animate } from 'animejs';
+import gsap from 'gsap';
 import { Cube, Triangle, Hexagon, Sphere, ArrowUpRight } from '@phosphor-icons/react';
 import { useContentMeta } from '../hooks/useContentData.js';
 
@@ -21,19 +21,19 @@ const ProjectCard = ({ index, title, desc, stack, number, artClass, Icon, delay,
                 const rotateX = ((y - centerY) / centerY) * -10;
                 const rotateY = ((x - centerX) / centerX) * 10;
 
-                animate(inner, {
-                    rotateX: rotateX,
-                    rotateY: rotateY,
-                    duration: 100,
-                    ease: 'linear'
+                gsap.to(inner, {
+                    rotationX: rotateX,
+                    rotationY: rotateY,
+                    duration: 0.1,
+                    ease: 'none'
                 });
             };
             const handleMouseLeave = () => {
-                animate(inner, {
-                    rotateX: 0,
-                    rotateY: 0,
-                    duration: 600,
-                    ease: 'outExpo'
+                gsap.to(inner, {
+                    rotationX: 0,
+                    rotationY: 0,
+                    duration: 0.6,
+                    ease: 'expo.out'
                 });
             };
 
